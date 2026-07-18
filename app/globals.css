@@ -1,26 +1,297 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-bebas: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  --font-grotesk: "Segoe UI", Inter, Arial, sans-serif;
+  --font-jbmono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  --bg: #060607;
+  --bg-soft: #0e0e10;
+  --red: #e6202c;
+  --red-deep: #7a0c14;
+  --red-glow: #ff2e3c;
+  --white: #f2efe9;
+  --muted: #7d7873;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-red: var(--red);
+  --color-red-deep: var(--red-deep);
+  --color-red-glow: var(--red-glow);
+  --color-cream: var(--white);
+  --color-muted: var(--muted);
+  --font-display: var(--font-bebas);
+  --font-sans: var(--font-grotesk);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font-grotesk), system-ui, sans-serif;
+  overflow-x: hidden;
 }
+
+::selection {
+  background: var(--red);
+  color: var(--white);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--red-deep);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--red);
+}
+
+.font-display {
+  font-family: var(--font-bebas), Impact, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.font-mono {
+  font-family: var(--font-jbmono), monospace;
+}
+
+/* ------- Cinematic text treatments ------- */
+.text-stroke {
+  -webkit-text-stroke: 1.5px rgba(242, 239, 233, 0.85);
+  color: transparent;
+}
+
+.text-stroke-red {
+  -webkit-text-stroke: 1.5px var(--red);
+  color: transparent;
+}
+
+/* Giant hero name behind the portrait — deep poster red */
+.hero-name-fill {
+  color: #b3121d;
+  text-shadow:
+    0 0 80px rgba(230, 32, 44, 0.45),
+    0 0 200px rgba(230, 32, 44, 0.25);
+}
+
+/* ------- Grain / noise ------- */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 80;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  transform: translateZ(0);
+}
+
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 1%); }
+  50% { transform: translate(1%, -2%); }
+  75% { transform: translate(-1%, 2%); }
+  100% { transform: translate(2%, -1%); }
+}
+
+/* ------- Red smoke blobs (GPU-cheap: transform+opacity only) ------- */
+.smoke {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(52px);
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+@keyframes smoke-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(6%, -8%) scale(1.15); }
+  66% { transform: translate(-5%, 6%) scale(0.92); }
+}
+
+@keyframes smoke-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1.05); }
+  40% { transform: translate(-7%, 5%) scale(0.9); }
+  70% { transform: translate(5%, -6%) scale(1.2); }
+}
+
+.smoke-a { animation: smoke-drift-a 24s ease-in-out infinite; }
+.smoke-b { animation: smoke-drift-b 30s ease-in-out infinite; }
+
+/* ------- Ember particles ------- */
+.ember {
+  position: absolute;
+  bottom: -3vh;
+  border-radius: 9999px;
+  background: var(--red-glow);
+  pointer-events: none;
+  opacity: 0;
+  animation: ember-rise linear infinite;
+}
+
+@keyframes ember-rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  8% { opacity: 0.75; }
+  60% { opacity: 0.4; }
+  100% { transform: translateY(-105vh) translateX(var(--drift, 30px)); opacity: 0; }
+}
+
+/* ------- Loader ------- */
+.loader-sweep {
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(230, 32, 44, 0.35) 48%,
+    rgba(255, 90, 100, 0.75) 50%,
+    rgba(230, 32, 44, 0.35) 52%,
+    transparent 80%
+  );
+}
+
+/* ------- Magnetic button base ------- */
+.btn-cine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-cine::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--red);
+  transform: translateY(101%);
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.btn-cine:hover::before {
+  transform: translateY(0);
+}
+
+/* Ripple */
+.ripple {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(0);
+  animation: ripple-anim 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ripple-anim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ------- Animated border for project cards ------- */
+.card-border {
+  position: relative;
+}
+
+.card-border::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--ang, 0deg),
+    transparent 0%,
+    var(--red) 12%,
+    transparent 28%,
+    transparent 60%,
+    rgba(230, 32, 44, 0.5) 72%,
+    transparent 85%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+
+@property --ang {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.card-border:hover::after {
+  opacity: 1;
+  animation: border-spin 3.2s linear infinite;
+}
+
+@keyframes border-spin {
+  to { --ang: 360deg; }
+}
+
+/* ------- Marquee ------- */
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-33.333%, 0, 0); }
+}
+
+@keyframes marquee-glint {
+  from { transform: translateX(-130vw) skewX(-18deg); }
+  to { transform: translateX(130vw) skewX(-18deg); }
+}
+
+@keyframes cross-pop {
+  0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.9; }
+  50% { transform: rotate(90deg) scale(1.12); opacity: 1; }
+}
+
+.marquee-shell {
+  contain: paint;
+}
+
+.marquee-track {
+  animation: marquee 28s linear infinite;
+}
+
+.marquee-shell:hover .marquee-track {
+  animation-duration: 18s;
+}
+
+.marquee-glint {
+  animation: marquee-glint 4.5s ease-in-out infinite;
+}
+
+.marquee-cross {
+  display: inline-block;
+  animation: cross-pop 2.8s ease-in-out infinite;
+}
+
+.marquee-item:nth-child(2n) .marquee-cross {
+  animation-delay: -1.4s;
+}
+
+.film-holes {
+  background-image: radial-gradient(circle at center, var(--bg) 4px, transparent 4px);
+  background-size: 26px 100%;
+  background-repeat: repeat-x;
+}
+
+/* ------- Reduced motion ------- */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .marquee-glint, .marquee-cross, .smoke-a, .smoke-b, .ember {
+    animation: none !important;
+  }
+}
+
+
+
